@@ -1,0 +1,10 @@
+db.sqlite3
+__pycache__
+venv
+env
+*/migrations/*
+!__init__.py
+.favorites.json
+.vscode
+automator*
+.autoignore

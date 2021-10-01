@@ -1,0 +1,7 @@
+autopep8
+django-cors-headers
+djoser
+docx2pdf
+pip-chill
+pypdf2
+python-docx
