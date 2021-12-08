@@ -1,4 +1,4 @@
-from core.view import CustomTokenObtainPairView, OrderDelivered
+
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path
@@ -8,10 +8,11 @@ from core.views.DeptUser_view import DeptUserView
 from core.views.Document_view import DocumentView
 from core.views.Offer_view import OfferView
 from core.views.Order_view import OrderView
-from core.views.OrderProcess_view import OrderProcessView
+from core.views.OrderProcess_view import OrderProcessHistoryView, OrderProcessView
 from core.views.Organization_view import OrganizationView
 from core.views.Pipeline_view import PipelineView
 from core.views.PipelineNode_view import PipelineNodeView
+from core.views.Seller_view import SellerView
 from core.views.User_view import UserView
 
 urlpatterns = [
@@ -52,12 +53,13 @@ urlpatterns = [
     path('PipelineNode/<str:pk>', PipelineNodeView.as_view()),
 
 
-    path('User/', UserView.as_view()),
-    path('User/<str:pk>', UserView.as_view()),
+    path('Seller/', SellerView.as_view()),
+    path('Seller/<str:pk>', SellerView.as_view()),
 
 
-    path('auth/jwt/create', CustomTokenObtainPairView.as_view()),
-    path("order_delivered/<str:pk>", OrderDelivered.as_view()),
+    path("OrderHistory/", OrderProcessHistoryView.as_view()),
+
+
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

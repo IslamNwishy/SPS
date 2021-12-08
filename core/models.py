@@ -63,6 +63,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
+class Seller(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bussiness_name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=30)
+
+
 class Organization(models.Model):
     id = models.UUIDField(
         auto_created=True, default=uuid.uuid4, unique=True, primary_key=True)
@@ -92,10 +98,13 @@ class Department(models.Model):
 class DeptUser(models.Model):
     id = models.UUIDField(
         auto_created=True, default=uuid.uuid4, unique=True, primary_key=True)
+    org = models.ForeignKey(
+        Organization, on_delete=models.CASCADE, related_name="org_employee")
     dept = models.ForeignKey(
-        Department, on_delete=models.CASCADE, related_name="employees")
+        Department, on_delete=models.CASCADE, related_name="employees", null=True, blank=True)
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name="dept_user")
+    phone = models.CharField(unique=True, max_length=20)
 
 
 class Document(models.Model):
@@ -220,6 +229,8 @@ class Order(models.Model):
     end_time = models.TimeField()
     completion = models.BooleanField(
         choices=STATUS, default=pending, null=True, blank=True)
+    chosen_offer = models.ForeignKey(
+        "Offer", null=True, blank=True, on_delete=models.SET_NULL, related_name="chosen_offer")
     qr_code = models.ImageField(
         upload_to="order_qr_codes", null=True, blank=True)
 
@@ -236,6 +247,8 @@ class OrderProcess(models.Model):
     ]
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     pipeline_node = models.ForeignKey(PipelineNode, on_delete=models.CASCADE)
+    generated_doc = models.FileField(
+        upload_to="order_docs", null=True, blank=True)
     verdict = models.BooleanField(
         choices=VERDICT, default=unkown, null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
@@ -247,8 +260,8 @@ class Offer(models.Model):
     id = models.UUIDField(
         auto_created=True, default=uuid.uuid4, unique=True, primary_key=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    vendor_name = models.CharField(max_length=200)
-    vendor_email = models.EmailField()
-    vendor_phone = models.CharField(max_length=20)
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
     details = models.TextField()
+    price = models.PositiveIntegerField()
+    document = models.FileField(upload_to="offer_docs", null=True, blank=True)
     create_date = models.DateTimeField(auto_now_add=True)

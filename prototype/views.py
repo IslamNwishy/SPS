@@ -19,7 +19,7 @@ class AutomatorView (APIView, CustomResultsSetPagination):
         except:
             raise Http404
 
-    def get(self, request, pk=None):
+    def get(self, request, pk=None, object=None):
         if "get" in self.exclude:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         serializer = None
@@ -30,7 +30,8 @@ class AutomatorView (APIView, CustomResultsSetPagination):
             serializer = self.get_serializer_class(object)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            object = self.model.objects.all()
+            if object == None:
+                object = self.model.objects.all()
             if(self.with_pagination == True):
                 object = self.paginate_queryset(object, request)
                 serializer = self.get_serializer_class(object, many=True)

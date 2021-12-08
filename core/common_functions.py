@@ -21,7 +21,7 @@ def gen_doc(docu, instance, map):
     doc.save(filename)
     subprocess.run(["abiword", "--to=pdf", filename])
     os.remove(filename)
-    return "media/order_docs/" + \
+    return "order_docs/" + \
         str(instance.pk) + "_" + str(docu.title) + ".pdf"
 
 
@@ -54,7 +54,8 @@ def next_process(instance):
     }
     doc = instance.pipeline_node.generates_document
     if doc:
-        print(gen_doc(doc, order, map))
+        instance.generated_doc = gen_doc(doc, order, map)
+        instance.save()
 
 
 def prev_process(instance):
