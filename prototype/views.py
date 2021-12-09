@@ -41,9 +41,27 @@ class AutomatorView (APIView, CustomResultsSetPagination):
                 return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        print(request.data)
         if "post" in self.exclude:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        serializer = self.serializer_class(data=request.data)
+
+        data = request.data
+        _mutable = None
+        try:
+            _mutable = data._mutable
+        except:
+            pass
+        # set to mutable
+        if _mutable != None:
+            data._mutable = True
+        data.update({
+            "org": request.user.dept_user.org.pk
+        })
+
+        if _mutable != None:
+            data._mutable = _mutable
+
+        serializer = self.serializer_class(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

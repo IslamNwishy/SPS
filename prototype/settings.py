@@ -155,6 +155,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+CHAIN_LINK = "http://192.168.1.102:"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

@@ -33,7 +33,7 @@ def next_process(instance):
     else:
         next_in_pipeline = instance.pipeline_node.next()
         new_instance = OrderProcess(
-            order=order, pipeline_node=next_in_pipeline)
+            order=order, pipeline_node=next_in_pipeline,checked_by= instance.checked_by)
         new_instance.save()
         order.current_node = new_instance.pipeline_node
     order.save()
@@ -63,7 +63,7 @@ def prev_process(instance):
     if instance.pipeline_node.rejection_behaviour == PipelineNode.review:
         prev_instance = instance.pipeline_node.prev()
         new_instance = OrderProcess(
-            order=order, pipeline_node=prev_instance)
+            order=order, pipeline_node=prev_instance, checked_by=instance.checked_by)
         new_instance.save()
         order.current_node = new_instance.pipeline_node
     else:

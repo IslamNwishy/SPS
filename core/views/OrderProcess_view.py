@@ -17,6 +17,12 @@ class OrderProcessView(AutomatorView):
             return super().get(request, pk, object=object)
         object = object.filter(pipeline_node__dept=dept_)
         return super().get(request, pk=None, object=object)
+    def post(self,request):
+        request.data.update({
+            "checked_by":request.user.pk,
+        })
+        return super().post(request)
+
 
 
 class OrderProcessHistoryView(AutomatorView):

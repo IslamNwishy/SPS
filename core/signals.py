@@ -8,8 +8,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
 import requests
 from django.contrib.sites.models import Site
-
-CHAIN_LINK = "http://192.168.1.102:3000"
+from prototype.settings import CHAIN_LINK
 
 
 @receiver(post_save, sender=OrderProcess)
@@ -28,10 +27,9 @@ def generate_qr(sender, instance, created, **kwargs):
             order=instance, pipeline_node=instance.current_node, checked_by=instance.contact_user)
         new_instance.save()
     if instance.verdict == Order.accept and not instance.qr_code:
-        current_site = Site.objects.get_current()
-        print(current_site.domain)
+        current_site = "https://localhost/"
         img = qrcode.make(
-            current_site.domain + str(instance.pk))
+            current_site + str(instance.pk))
         img_io = BytesIO()
         img.save(img_io, format="PNG")
         image = InMemoryUploadedFile(img_io, field_name=None, name="qr_code.png",
@@ -40,16 +38,19 @@ def generate_qr(sender, instance, created, **kwargs):
         instance.save()
 
 
-def log_data_to_chain(body, path, created):
+def log_data_to_chain(body, path, created, dept=None, id=None):
+    port = "8000"
+    if dept:
+        port = dept.port
     if created:
-        r = requests.post(CHAIN_LINK+path,
+        r = requests.post(CHAIN_LINK+port+path,
                           data=body)
     else:
-        r = requests.put(CHAIN_LINK+path,
+        r = requests.put(CHAIN_LINK+port+path+"/"+str(id),
                          data=body)
 
     if r.status_code != 200:
-        print(r.status_code, r.reason)
+        print(r.status_code, r.content)
 
 
 @receiver(post_save, sender=Organization)
@@ -137,4 +138,7 @@ def log_in_chain(sender, instance, created, **kwargs):
         "departmentInfo": f"resource:spp.organizationDepartment.organizationDepartment#{instance.pipeline_node.dept.pk}",
         "verdict": instance.verdict
     }
-    log_data_to_chain(body, "/api/spp.orderCreation.OrderState", created)
+    if not created:
+        body.pop("OrderStateID")
+    log_data_to_chain(body, "/api/spp.orderCreation.OrderState",
+                      created, id=instance.id, dept=instance.pipeline_node.dept)

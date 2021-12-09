@@ -90,6 +90,7 @@ class Department(models.Model):
     title = models.CharField(max_length=500)
     org = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name="depts")
+    port = models.CharField(max_length=4, default="8000")
 
     def __str__(self) -> str:
         return self.title
@@ -195,7 +196,7 @@ class PipelineNode(models.Model):
 
 
 class Order(models.Model):
-    accept, reject, unkown = "accept", "reject", "pipeline"
+    accept, reject, unkown = "accepted", "rejected", "pipeline"
     pending, on_delivery, delivered = None, False, True
     VERDICT = [
         (accept, "Accepted"),
@@ -239,7 +240,7 @@ class Order(models.Model):
 
 
 class OrderProcess(models.Model):
-    accept, reject, unkown = "accept", "reject", "pipeline"
+    accept, reject, unkown = "accepted", "rejected", "pipeline"
     VERDICT = [
         (accept, "Accepted"),
         (reject, "Rejected"),
@@ -253,7 +254,7 @@ class OrderProcess(models.Model):
         choices=VERDICT, default=unkown, max_length=10)
     create_date = models.DateTimeField(auto_now_add=True)
     checked_by = models.ForeignKey(
-        User, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE,null=True,blank=True)
 
 
 class Offer(models.Model):
