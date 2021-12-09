@@ -195,7 +195,7 @@ class PipelineNode(models.Model):
 
 
 class Order(models.Model):
-    accept, reject, unkown = True, False, None
+    accept, reject, unkown = "accept", "reject", "pipeline"
     pending, on_delivery, delivered = None, False, True
     VERDICT = [
         (accept, "Accepted"),
@@ -209,8 +209,8 @@ class Order(models.Model):
     ]
     id = models.UUIDField(
         auto_created=True, default=uuid.uuid4, unique=True, primary_key=True)
-    verdict = models.BooleanField(
-        choices=VERDICT, default=unkown, null=True, blank=True)
+    verdict = models.CharField(
+        choices=VERDICT, default=unkown, max_length=10)
     pipeline = models.ForeignKey(
         Pipeline, on_delete=models.CASCADE, related_name="pipe_orders")
     current_node = models.ForeignKey(
@@ -239,7 +239,7 @@ class Order(models.Model):
 
 
 class OrderProcess(models.Model):
-    accept, reject, unkown = True, False, None
+    accept, reject, unkown = "accept", "reject", "pipeline"
     VERDICT = [
         (accept, "Accepted"),
         (reject, "Rejected"),
@@ -249,11 +249,11 @@ class OrderProcess(models.Model):
     pipeline_node = models.ForeignKey(PipelineNode, on_delete=models.CASCADE)
     generated_doc = models.FileField(
         upload_to="order_docs", null=True, blank=True)
-    verdict = models.BooleanField(
-        choices=VERDICT, default=unkown, null=True, blank=True)
+    verdict = models.CharField(
+        choices=VERDICT, default=unkown, max_length=10)
     create_date = models.DateTimeField(auto_now_add=True)
     checked_by = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, blank=True)
+        User, on_delete=models.CASCADE)
 
 
 class Offer(models.Model):
